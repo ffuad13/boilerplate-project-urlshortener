@@ -45,7 +45,7 @@ app.post('/api/shorturl', async (req, res) => {
         original_url: parsedUrl.href,
         shorturl: update.count
       }).catch(error => {
-        return res.json(error)
+        return res.json('duplicate data')
       })
 
       return res.json({
@@ -64,11 +64,7 @@ app.get('/api/shorturl/:short_url', async (req, res) => {
     short_url: req.params.short_url
   })
 
-  if (shorturl === data.shorturl) {
-    return res.redirect(data.original_url)
-  }
-
-  return res.json({ error: 'invalid url' })
+  shorturl === data.shorturl ? res.redirect(data.original_url) : res.json({ error: 'invalid url' })
 })
 
 app.listen(port, function() {
