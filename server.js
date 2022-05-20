@@ -6,7 +6,8 @@ const mongoose = require('mongoose')
 const URL = require('url')
 const DNS = require('dns')
 
-const {link, counter} = require('./model')
+const {link, counter} = require('./model');
+const { is } = require('express/lib/request');
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -35,9 +36,19 @@ app.post('/api/shorturl', async (req, res) => {
   const {url} = req.body
   const parsedUrl = URL.parse(url)
 
+  let counterId = ''
+  const isCounterExist = await counter.exists()
+  if (!isCounterExist) {
+    let createCounter = await counter.create({
+      count: 1
+    })
+    counterId = createCounter._id
+    console.log('counter created')
+  }
+
   DNS.lookup(parsedUrl.hostname, async (error, address, family) => {
     if (!error && parsedUrl.hostname !== null) {
-      let update = await counter.findByIdAndUpdate(process.env.COUNTER_ID,{
+      let update = await counter.findByIdAndUpdate(counterId || isCounterExist._id,{
         $inc:{count: 1}
       })
 
