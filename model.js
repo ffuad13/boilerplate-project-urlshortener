@@ -6,7 +6,7 @@ const linkSchema = mongoose.Schema({
 		required: true,
 		unique: true
 	},
-	shorturl: {
+	short_url: {
 		required: true,
 		type: Number,
 		unique: true

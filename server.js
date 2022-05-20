@@ -43,14 +43,14 @@ app.post('/api/shorturl', async (req, res) => {
 
       let insert = await link.insertMany({
         original_url: parsedUrl.href,
-        shorturl: update.count
+        short_url: update.count
       }).catch(error => {
         return res.json('duplicate data')
       })
 
       return res.json({
         "original_url": insert[0].original_url,
-        "short_url": insert[0].shorturl
+        "short_url": insert[0].short_url
       })
     }
 
@@ -59,12 +59,22 @@ app.post('/api/shorturl', async (req, res) => {
 })
 
 app.get('/api/shorturl/:short_url', async (req, res) => {
-  let shorturl = parseInt(req.params.short_url)
-  let data = await link.findOne({
-    short_url: req.params.short_url
-  })
+  try {
+    let shorturl = parseInt(req.params.short_url)
+    let data = await link.findOne({
+      short_url: shorturl
+    })
 
-  shorturl === data.shorturl ? res.redirect(data.original_url) : res.json({ error: 'invalid url' })
+    if (!data) {
+      return res.json({ error: 'invalid url' })
+    }
+
+    return res.redirect(data.original_url)
+  } catch (error) {
+    res.status(500).send({
+      msg:"Error"
+    })
+  }
 })
 
 app.listen(port, function() {
